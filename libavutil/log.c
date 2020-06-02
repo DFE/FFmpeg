@@ -430,8 +430,6 @@ void av_vlog(void* avcl, int level, const char *fmt, va_list vl)
         level += *(int *) (((uint8_t *) avcl) + avc->log_level_offset_offset);
     if (log_callback)
         log_callback(avcl, level, fmt, vl);
-	else
-		puts(fmt);
 }
 
 int av_log_get_level(void)
