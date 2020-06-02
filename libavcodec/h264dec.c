@@ -228,7 +228,6 @@ int ff_h264_alloc_tables(H264Context *h)
     return 0;
 
 fail:
-    ff_h264_free_tables(h);
     return AVERROR(ENOMEM);
 }
 
@@ -420,7 +419,6 @@ static av_cold int h264_decode_init(AVCodecContext *avctx)
                av_log(avctx, explode ? AV_LOG_ERROR: AV_LOG_WARNING,
                       "Error decoding the extradata\n");
                if (explode) {
-                   h264_decode_end(avctx);
                    return ret;
                }
                ret = 0;
@@ -605,7 +603,7 @@ static int decode_nal_units(H264Context *h, const uint8_t *buf, int buf_size)
     }
 
     ret = ff_h2645_packet_split(&h->pkt, buf, buf_size, avctx, h->is_avc, h->nal_length_size,
-                                avctx->codec_id, avctx->flags2 & AV_CODEC_FLAG2_FAST, 0);
+                                avctx->codec_id, 0, 0);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR,
                "Error splitting the input into NAL units.\n");
@@ -1107,7 +1105,7 @@ AVCodec ff_h264_decoder = {
                                NULL
                            },
     .caps_internal         = FF_CODEC_CAP_INIT_THREADSAFE | FF_CODEC_CAP_EXPORTS_CROPPING |
-                             FF_CODEC_CAP_ALLOCATE_PROGRESS,
+                             FF_CODEC_CAP_ALLOCATE_PROGRESS | FF_CODEC_CAP_INIT_CLEANUP,
     .flush                 = h264_decode_flush,
     .update_thread_context = ONLY_IF_THREADS_ENABLED(ff_h264_update_thread_context),
     .profiles              = NULL_IF_CONFIG_SMALL(ff_h264_profiles),
